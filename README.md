@@ -65,7 +65,6 @@ Simulates real-world anomalous login behavior by comparing a "current" login att
 
 ```text
 Cybersecurity-Dashboard/
-├── CLAUDE.md                   # Project conventions & development rules
 ├── README.md                   # This file
 ├── backend/
 │   ├── app.py                  # FastAPI entry point, routes, and Pydantic schemas
@@ -110,7 +109,7 @@ No database, Node.js toolchain, or build step is required — the frontend is pl
 ### 1. Navigate to the project directory
 
 ```bash
-cd Cybersecurity-Dashboard
+cd Cybersecurity_Lab_Dashboard
 ```
 
 ### 2. Set up the backend virtual environment
