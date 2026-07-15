@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber-Sim Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-zinc-950 text-zinc-50 min-h-screen font-sans">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="font-mono font-bold tracking-widest text-zinc-50">CYBER-SIM</span>
+        <span class="text-xs text-zinc-600 font-mono">/ analyzer dashboard</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="health-dot" class="w-2 h-2 rounded-full bg-zinc-700"></span>
+        <span id="health-label" class="text-xs font-mono text-zinc-500">checking backend…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 md:px-10 py-8 space-y-8">
+
+    <!-- Central summary card -->
+    <section class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+      <div class="flex-1 flex flex-col items-center md:items-start gap-2">
+        <span class="text-xs font-mono tracking-widest text-zinc-500 uppercase">Unified Risk Score</span>
+        <div id="hero-score-ring" class="rounded-2xl px-6 py-3">
+          <span id="hero-score-value" class="text-7xl font-mono font-bold text-zinc-600">—</span>
+        </div>
+        <span id="hero-score-status" class="text-sm font-mono tracking-widest text-zinc-600">AWAITING SCANS</span>
+        <span id="hero-score-caption" class="text-xs text-zinc-600">Worst-case across 0/4 completed scans</span>
+      </div>
+      <div class="flex-1 w-full h-48">
+        <canvas id="scoreChart"></canvas>
+      </div>
+    </section>
+
+    <!-- 4-module grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+
+      <!-- Phishing -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono text-zinc-500 tracking-widest">LAB 01</span>
+            <h2 class="text-sm font-semibold text-zinc-100">Phishing Analyzer</h2>
+          </div>
+          <span id="phishing-status-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide ring-1 ring-zinc-800 text-zinc-600">—</span>
+        </div>
+        <form id="phishing-form" class="flex flex-col gap-3">
+          <textarea
+            id="phishing-input"
+            rows="5"
+            placeholder="Paste the raw email subject + body text here…"
+            class="resize-y min-h-[110px] bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          ></textarea>
+          <button
+            id="phishing-submit"
+            type="submit"
+            class="bg-zinc-100 text-zinc-950 text-sm font-medium rounded-lg py-2 hover:bg-white transition disabled:opacity-50"
+          >Analyze Email</button>
+        </form>
+        <div id="phishing-result" class="border-t border-zinc-800 pt-3">
+          <p class="text-xs text-zinc-600 italic">No scan run yet.</p>
+        </div>
+      </div>
+
+      <!-- URL / Links -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono text-zinc-500 tracking-widest">LAB 02</span>
+            <h2 class="text-sm font-semibold text-zinc-100">URL Scanner</h2>
+          </div>
+          <span id="links-status-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide ring-1 ring-zinc-800 text-zinc-600">—</span>
+        </div>
+        <form id="links-form" class="flex flex-col gap-3">
+          <input
+            id="links-input"
+            type="text"
+            placeholder="https://example.com/login"
+            class="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+          />
+          <button
+            id="links-submit"
+            type="submit"
+            class="bg-zinc-100 text-zinc-950 text-sm font-medium rounded-lg py-2 hover:bg-white transition disabled:opacity-50"
+          >Scan URL</button>
+        </form>
+        <div id="links-result" class="border-t border-zinc-800 pt-3">
+          <p class="text-xs text-zinc-600 italic">No scan run yet.</p>
+        </div>
+      </div>
+
+      <!-- Password / Credentials -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono text-zinc-500 tracking-widest">LAB 03</span>
+            <h2 class="text-sm font-semibold text-zinc-100">Password Auditor</h2>
+          </div>
+          <span id="credentials-status-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide ring-1 ring-zinc-800 text-zinc-600">—</span>
+        </div>
+        <form id="credentials-form" class="flex flex-col gap-3">
+          <div class="flex gap-2">
+            <input
+              id="credentials-input"
+              type="password"
+              placeholder="Enter a password to audit"
+              class="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            />
+            <button
+              id="credentials-toggle"
+              type="button"
+              class="px-3 rounded-lg border border-zinc-800 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition"
+            >Show</button>
+          </div>
+          <button
+            id="credentials-submit"
+            type="submit"
+            class="bg-zinc-100 text-zinc-950 text-sm font-medium rounded-lg py-2 hover:bg-white transition disabled:opacity-50"
+          >Audit Password</button>
+        </form>
+        <div id="credentials-result" class="border-t border-zinc-800 pt-3">
+          <p class="text-xs text-zinc-600 italic">No scan run yet.</p>
+        </div>
+      </div>
+
+      <!-- Login anomaly -->
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono text-zinc-500 tracking-widest">LAB 04</span>
+            <h2 class="text-sm font-semibold text-zinc-100">Anomaly Detection</h2>
+          </div>
+          <span id="login-status-pill" class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide ring-1 ring-zinc-800 text-zinc-600">—</span>
+        </div>
+        <form id="login-form" class="flex flex-col gap-4">
+          <fieldset class="flex flex-col gap-2 border-0 m-0 p-0">
+            <legend class="text-[10px] font-mono text-zinc-500 tracking-widest uppercase mb-1 p-0">
+              Section A &mdash; Current Attempt
+            </legend>
+
+            <label for="login-scenario" class="text-[10px] text-zinc-500">Simulation Type</label>
+            <select
+              id="login-scenario"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            ></select>
+
+            <label for="login-ip" class="text-[10px] text-zinc-500">IP Address</label>
+            <input
+              id="login-ip"
+              type="text"
+              placeholder="203.0.113.10"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            />
+
+            <label for="login-country" class="text-[10px] text-zinc-500">Country</label>
+            <select
+              id="login-country"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            ></select>
+
+            <label for="login-device" class="text-[10px] text-zinc-500">Device Type</label>
+            <select
+              id="login-device"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            ></select>
+
+            <label for="login-failed-attempts" class="text-[10px] text-zinc-500">Failed Entry Count</label>
+            <input
+              id="login-failed-attempts"
+              type="number"
+              min="0"
+              placeholder="0"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            />
+          </fieldset>
+
+          <fieldset class="flex flex-col gap-2 m-0 p-0 pt-3 border-t border-zinc-800">
+            <legend class="text-[10px] font-mono text-zinc-500 tracking-widest uppercase mb-1 p-0">
+              Section B &mdash; Historical Profile
+            </legend>
+            <label for="login-baseline" class="text-[10px] text-zinc-500">Select User Baseline Profile</label>
+            <select
+              id="login-baseline"
+              class="bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-600"
+            ></select>
+          </fieldset>
+
+          <button
+            id="login-submit"
+            type="submit"
+            class="bg-zinc-100 text-zinc-950 text-sm font-medium rounded-lg py-2 hover:bg-white transition disabled:opacity-50"
+          >Check Login</button>
+        </form>
+        <div id="login-result" class="border-t border-zinc-800 pt-3">
+          <p class="text-xs text-zinc-600 italic">No scan run yet.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <footer class="text-center text-xs text-zinc-600 pb-8">
+      Connects to the local FastAPI backend at http://localhost:8000
+    </footer>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* Supplements the Tailwind CDN build with the handful of things it can't
+   express as utility classes: scrollbar theming, entrance animation, and
+   the hero score's colored glow. */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.result-enter {
+  animation: fadeUp 0.25s ease;
+}
+
+/* Toggled by app.js on the hero score wrapper; color is set inline per
+   status so this class stays purely structural. */
+.risk-glow {
+  box-shadow: 0 0 24px 2px currentColor;
+  transition: box-shadow 0.3s ease, color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-enter {
+    animation: none;
+  }
+  .risk-glow {
+    box-shadow: none;
+    transition: none;
+  }
+}
